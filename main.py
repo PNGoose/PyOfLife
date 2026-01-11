@@ -100,7 +100,7 @@ class GameOfLife:
                 self.matrix = ['·' * self.width] * self.width
             elif i[0:4] == 'help':
                 print("pos {x/y/c} - place a cell\n"
-                      "nsco {number}- next command gen\n"
+                      "nxco {number}- next command gen\n"
                       "fis {number}- set finish gen\n"
                       "stop - stop the game\n"
                       "cler - clear the board")
