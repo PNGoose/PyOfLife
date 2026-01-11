@@ -4,78 +4,77 @@ from time import sleep
 
 
 # creating of game table 
-N=10
-matrix = [''.join([choice(["·", "#"]) for i in range(N)]) for i in range(N)]
+class GameOfLife:
+    def __init__(self, N: int):
+        self.width = N
+        self.matrix = [''.join([choice(['·', '#']) for i in range(N)]) for i in range(N)]
+        self.gen = 0
 
-
-def count_lives(mat: list):
-    result = []
-
-    for y in range(len(mat)):
-        st = ''
-        for x in range(len(mat[y])):
-            lives = 0
-            neighbours = ''
-
-            # finding the string with neighbours to each point
-            if x == 0 and y == 0:
-                for i in range(2):
-                    neighbours += mat[y + i][x:x + 2]
-            
-            elif x == 0 and y == N - 1:
-                for i in range(-1, 1):
-                    neighbours += mat[y + i][x:x + 2]
-
-            elif x == 0:
-                for i in range(-1, 2):
-                    neighbours += mat[y + i][x: x + 2]
-
-            elif y == 0:
-                for i in range(2):
-                    neighbours += mat[y + i][x - 1:x + 2]
-
-            elif y == N - 1:
-                for i in range(-1, 1):
-                    neighbours += mat[y + i][x -1:x + 2]
-
-            else:
-                for i in range(-1, 2):
-                    neighbours += mat[y + i][x - 1:x + 2]
-            
-            lives += neighbours.count('#')
-            # we shouldn't count ourself
-            if mat[y][x] == '#':
-                lives -= 1
-            st += str(lives)
-        result += [st]
-    
-    return result
-
-
-def recounting(mat_orig: list, mat_counted: list): 
-    result = []
-    for x in range(len(mat_orig)):
-        st = ''
-        for y in range(len(mat_orig)):            
-            if mat_orig[x][y] == '·':
-                if mat_counted[x][y] == '3':
-                    st += '#'
+    def count_lives(self):
+        result = []
+        for y in range(self.width):
+            st = ''
+            for x in range(self.width):
+                lives = 0
+                neighbours = ''
+                # finding the string with neighbours to each point
+                if x == 0 and y == 0:
+                    for i in range(2):
+                        neighbours += self.matrix[y + i][x:x + 2]
+                elif x == 0 and y == self.width - 1:
+                    for i in range(-1, 1):
+                        neighbours += self.matrix[y + i][x:x + 2]
+                elif x == 0:
+                    for i in range(-1, 2):
+                        neighbours += self.matrix[y + i][x: x + 2]
+                elif y == 0:
+                    for i in range(2):
+                        neighbours += self.matrix[y + i][x - 1:x + 2]
+                elif y == self.width - 1:
+                    for i in range(-1, 1):
+                        neighbours += self.matrix[y + i][x -1:x + 2]
                 else:
-                    st += '·'
+                    for i in range(-1, 2):
+                        neighbours += self.matrix[y + i][x - 1:x + 2]
+                # we shouldn't count ourself
+                if self.matrix[y][x] == '#':
+                    lives -= 1
+                lives += neighbours.count('#')
+                st += str(lives)
+            result += [st]
+        self.mat_numbered = result
 
-            elif mat_orig[x][y] == '#':
-                if mat_counted[x][y] not in ['2', '3']:
-                    st += '·'
-                else:
-                    st += '#'
-        result.append(st)
-    for i in result:
-        print(i)
+    def recounting(self):
+        self.count_lives()
+        result = []
+        for x in range(self.width):
+            st = ''
+            for y in range(self.width):            
+                if self.matrix[x][y] == '·':
+                    if self.mat_numbered[x][y] == '3':
+                        st += '#'
+                    else:
+                        st += '·'
+                elif self.matrix[x][y] == '#':
+                    if self.mat_numbered[x][y] not in ['2', '3']:
+                        st += '·'
+                    else:
+                        st += '#'
+            result.append(st)
+        self.matrix = result
+
+    def loop(self):
+        os.system('clear')
+        print('PyOfLife'.center(self.width, '-'))
+        self.gen += 1
+        for i in self.matrix:
+            print(i)
+        print('-' * self.width)
+        print(f'Generation: {self.gen}')
+        self.recounting()
 
 
-os.system('clear')
-for i in matrix:
-    print(i)
-print()
-c = count_lives(matrix)
-recounting(matrix, c)
+Game=GameOfLife(20)
+for i in range(50):
+    Game.loop()
+    sleep(1)
