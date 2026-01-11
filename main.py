@@ -63,6 +63,9 @@ class GameOfLife:
             result.append(st)
         self.matrix = result
 
+    def commands(self, inp):
+        pass
+
     def loop(self):
         os.system('clear')
         print('PyOfLife'.center(self.width, '-'))
