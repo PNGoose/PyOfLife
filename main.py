@@ -1,14 +1,18 @@
 import os
 from random import choice
 from time import sleep
+from sys import stdin
 
 
 # creating of game table 
 class GameOfLife:
-    def __init__(self, N: int):
+    def __init__(self, N: int, finish: int, mode=0):
         self.width = N
         self.matrix = [''.join([choice(['·', '#']) for i in range(N)]) for i in range(N)]
         self.gen = 0
+        self.finish = finish
+        self.next_inp = 10
+        self.running = True
 
     def count_lives(self):
         result = []
@@ -63,21 +67,71 @@ class GameOfLife:
             result.append(st)
         self.matrix = result
 
-    def commands(self, inp):
-        pass
+    def commands(self):
+        print('Command GEN')
+        inp = stdin.read().lower().split('\n')
+        print(inp)
+        flag_next = True
+        for i in inp:
+            self.print_console()
+            if i[0:3] == 'pos':
+                print(i[4:])
+                try:
+                    x, y, c = i[4:].split('/')
+                    x, y = int(x), int(y)
+                    self.matrix[y] = ''.join([self.matrix[y][i] if i != x else c for i in range(self.width)])
+                except Exception:
+                    print("WRONG POS COMMAND - TYPE LIKE pos x/y/c - pos 1/2/#")
+            elif i[0:4] == 'nxco':
+                flag_next = False
+                try:
+                    self.next_inp = int(i[4:])
+                except Exception:
+                    print('INPUT THE NUMBER')
+                print(self.next_inp, i[4:])
+            elif i[0:3] == 'fis':
+                try:
+                    self.finish = int(i[3:])
+                except Exception:
+                    print('INPUT THE NUMBER')
+            elif i[0:4] == 'stop':
+                self.running = False
+            elif i[0:4] == 'cler':
+                self.matrix = ['·' * self.width] * self.width
+            elif i[0:4] == 'help':
+                print("pos {x/y/c} - place a cell\n"
+                      "nsco {number}- next command gen\n"
+                      "fis {number}- set finish gen\n"
+                      "stop - stop the game\n"
+                      "cler - clear the board")
+                sleep(10)
 
-    def loop(self):
+        if flag_next:
+            self.next_inp += 10
+
+    def print_console(self):
         os.system('clear')
-        print('PyOfLife'.center(self.width, '-'))
-        self.gen += 1
+        print('PyOfLife'.center(self.width, '|'))
+        print(f'finish={self.finish}')
+        population = 0
         for i in self.matrix:
             print(i)
-        print('-' * self.width)
+            population += i.count('#')
+        print('|' * self.width)
         print(f'Generation: {self.gen}')
+        print(f'Population: {population}')
+        sleep(0.5)
+
+    def loop(self):
+        self.gen += 1
+        self.print_console()
+        if self.gen == self.next_inp:
+            self.commands()
         self.recounting()
+        if self.gen >= self.finish:
+            self.running = False
 
 
-Game=GameOfLife(20)
-for i in range(50):
+Game=GameOfLife(N=20, finish=50)
+while Game.running:
     Game.loop()
-    sleep(1)
