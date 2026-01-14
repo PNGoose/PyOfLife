@@ -13,6 +13,9 @@ class GameOfLife:
         self.finish = finish
         self.next_inp = 10
         self.running = True
+    
+    def random_fill(self):
+        self.matrix = [''.join([choice(['·', '#']) for i in range(N)]) for i in range(N)]
 
     def count_lives(self):
         result = []
@@ -68,46 +71,57 @@ class GameOfLife:
         self.matrix = result
 
     def commands(self):
-        print('Command GEN')
-        inp = stdin.read().lower().split('\n')
-        print(inp)
         flag_next = True
-        for i in inp:
-            self.print_console()
-            if i[0:3] == 'pos':
-                print(i[4:])
-                try:
-                    x, y, c = i[4:].split('/')
-                    x, y = int(x), int(y)
-                    self.matrix[y] = ''.join([self.matrix[y][i] if i != x else c for i in range(self.width)])
-                except Exception:
-                    print("WRONG POS COMMAND - TYPE LIKE pos x/y/c - pos 1/2/#")
-            elif i[0:4] == 'nxco':
-                flag_next = False
-                try:
-                    self.next_inp = int(i[4:])
-                except Exception:
-                    print('INPUT THE NUMBER')
-                print(self.next_inp, i[4:])
-            elif i[0:3] == 'fis':
-                try:
-                    self.finish = int(i[3:])
-                except Exception:
-                    print('INPUT THE NUMBER')
-            elif i[0:4] == 'stop':
+        inp=input('Your command: ')
+        while inp:
+            if inp[0:3] == 'pos':
+                self.pos_com(inp)
+            elif inp[0:4] == 'nxco':
+                if '+' not in inp:
+                    flag_next = False
+                self.next_command(inp)
+            elif inp[0:3] == 'fis':
+                self.finish_command(inp)
+            elif inp[0:4] == 'stop':
                 self.running = False
-            elif i[0:4] == 'cler':
+            elif inp[0:4] == 'cler':
                 self.matrix = ['·' * self.width] * self.width
-            elif i[0:4] == 'help':
+            elif inp[0:4] == 'help':
                 print("pos {x/y/c} - place a cell\n"
-                      "nxco {number}- next command gen\n"
-                      "fis {number}- set finish gen\n"
-                      "stop - stop the game\n"
-                      "cler - clear the board")
+                    "nxco {number}- next command gen\n"
+                    "fis {number}- set finish gen\n"
+                    "stop - stop the game\n"
+                    "cler - clear the board")
                 sleep(10)
+            self.print_console()
+            inp=input('Your command: ')
 
         if flag_next:
             self.next_inp += 10
+    
+    def pos_com(self, command: str):    
+        try:                            # 'pos x/y/c'
+            l = command[4:].split('/')  # '012345678'
+            x, y, c = int(l[0]), int(l[1]), l[-1]
+            if c in '#·':
+                new_row = [self.matrix[y][i] if i != x else c for i in range(self.width)]
+                self.matrix[y] = ''.join(new_row)
+        except Exception:
+            pass
+    
+    def next_command(self, command: str):    
+        try: 
+            if '+' in command:
+                self.next_command += int(command[6:])   # '01234567'
+            self.next_inp = int(command[4:])            # 'nxco +67'
+        except Exception:
+            self.next_inp += 10
+    
+    def finish_command(self, command: str):
+        try:
+            self.finish = int(i[4:])
+        except Exception: # '0123456'
+            pass          # 'fis 500'
 
     def print_console(self):
         os.system('clear')
