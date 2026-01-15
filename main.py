@@ -7,8 +7,8 @@ from sys import argv
 # creating of game table 
 class GameOfLife:
     def __init__(self, N: int, finish: int, mode=0):
-        self.width = N
-        self.heigh = N
+        self.width = 30
+        self.heigh = 20
         self.matrix = [''.join([choice(['·', '#']) for i in range(self.width)]) for i in range(self.heigh)]
         self.gen = 0
         self.finish = finish
@@ -25,7 +25,7 @@ class GameOfLife:
 
     def count_lives(self):
         result = []
-        for y in range(self.width):
+        for y in range(self.heigh):
             st = ''
             for x in range(self.width):
                 lives = 0
@@ -34,7 +34,7 @@ class GameOfLife:
                 if x == 0 and y == 0:
                     for i in range(2):
                         neighbours += self.matrix[y + i][x:x + 2]
-                elif x == 0 and y == self.width - 1:
+                elif x == 0 and y == self.heigh - 1:
                     for i in range(-1, 1):
                         neighbours += self.matrix[y + i][x:x + 2]
                 elif x == 0:
@@ -43,7 +43,7 @@ class GameOfLife:
                 elif y == 0:
                     for i in range(2):
                         neighbours += self.matrix[y + i][x - 1:x + 2]
-                elif y == self.width - 1:
+                elif y == self.heigh - 1:
                     for i in range(-1, 1):
                         neighbours += self.matrix[y + i][x -1:x + 2]
                 else:
@@ -60,16 +60,16 @@ class GameOfLife:
     def recounting(self):
         mat_numbered = self.count_lives()
         result = []
-        for x in range(self.width):
+        for y in range(0, self.heigh):
             st = ''
-            for y in range(self.width):            
-                if self.matrix[x][y] == '·':
-                    if mat_numbered[x][y] == '3':
+            for x in range(0, self.width):    
+                if self.matrix[y][x] == '·':
+                    if mat_numbered[y][x] == '3':
                         st += '#'
                     else:
                         st += '·'
-                elif self.matrix[x][y] == '#':
-                    if mat_numbered[x][y] not in ['2', '3']:
+                elif self.matrix[y][x] == '#':
+                    if mat_numbered[y][x] not in ['2', '3']:
                         st += '·'
                     else:
                         st += '#'
@@ -77,8 +77,7 @@ class GameOfLife:
         self.matrix = result
 
     def commands(self):
-        inp=input('Your command: ')
-        while inp and self.running:
+        while (inp:=input('Your command: ').strip()):
             if inp[0:3] == 'pos':
                 self.pos_commmand(inp)
             elif inp[0:4] == 'nxco':
@@ -87,12 +86,12 @@ class GameOfLife:
                 self.finish_command(inp)
             elif inp[0:4] == 'stop':
                 self.game_control(0)
+                break
             elif inp[0:4] == 'cler':
                 self.game_control(1)
             elif inp[0:4] == 'help':
                self.help_command()
             self.print_console()
-            inp=input('Your command: ')
     
     def pos_commmand(self, command: str):    
         try:                            # 'pos x/y/c'
@@ -114,7 +113,7 @@ class GameOfLife:
     
     def finish_command(self, command: str):
         try:
-            self.finish = int(i[4:])
+            self.finish = int(command[3:])
         except Exception: # '0123456'
             pass          # 'fis 500'
 
