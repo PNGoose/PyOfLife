@@ -1,21 +1,27 @@
 import os
 from random import choice
 from time import sleep
-from sys import stdin
+from sys import argv
 
 
 # creating of game table 
 class GameOfLife:
     def __init__(self, N: int, finish: int, mode=0):
         self.width = N
-        self.matrix = [''.join([choice(['·', '#']) for i in range(N)]) for i in range(N)]
+        self.heigh = N
+        self.matrix = [''.join([choice(['·', '#']) for i in range(self.width)]) for i in range(self.heigh)]
         self.gen = 0
         self.finish = finish
         self.next_inp = 10
         self.running = True
     
-    def random_fill(self):
-        self.matrix = [''.join([choice(['·', '#']) for i in range(N)]) for i in range(N)]
+    def game_control(self, mode: int):
+        if mode == 0:
+            self.running = False
+        elif mode == 1:
+            self.matrix = ['·' * self.width] * self.heigh
+        elif mode == 2:
+            self.matrix = [''.join([choice(['·', '#']) for i in range(self.width)]) for i in range(self.heigh)]
 
     def count_lives(self):
         result = []
@@ -49,21 +55,21 @@ class GameOfLife:
                 lives += neighbours.count('#')
                 st += str(lives)
             result += [st]
-        self.mat_numbered = result
+        return result
 
     def recounting(self):
-        self.count_lives()
+        mat_numbered = self.count_lives()
         result = []
         for x in range(self.width):
             st = ''
             for y in range(self.width):            
                 if self.matrix[x][y] == '·':
-                    if self.mat_numbered[x][y] == '3':
+                    if mat_numbered[x][y] == '3':
                         st += '#'
                     else:
                         st += '·'
                 elif self.matrix[x][y] == '#':
-                    if self.mat_numbered[x][y] not in ['2', '3']:
+                    if mat_numbered[x][y] not in ['2', '3']:
                         st += '·'
                     else:
                         st += '#'
@@ -71,35 +77,24 @@ class GameOfLife:
         self.matrix = result
 
     def commands(self):
-        flag_next = True
         inp=input('Your command: ')
-        while inp:
+        while inp and self.running:
             if inp[0:3] == 'pos':
-                self.pos_com(inp)
+                self.pos_commmand(inp)
             elif inp[0:4] == 'nxco':
-                if '+' not in inp:
-                    flag_next = False
                 self.next_command(inp)
             elif inp[0:3] == 'fis':
                 self.finish_command(inp)
             elif inp[0:4] == 'stop':
-                self.running = False
+                self.game_control(0)
             elif inp[0:4] == 'cler':
-                self.matrix = ['·' * self.width] * self.width
+                self.game_control(1)
             elif inp[0:4] == 'help':
-                print("pos {x/y/c} - place a cell\n"
-                    "nxco {number}- next command gen\n"
-                    "fis {number}- set finish gen\n"
-                    "stop - stop the game\n"
-                    "cler - clear the board")
-                sleep(10)
+               self.help_command()
             self.print_console()
             inp=input('Your command: ')
-
-        if flag_next:
-            self.next_inp += 10
     
-    def pos_com(self, command: str):    
+    def pos_commmand(self, command: str):    
         try:                            # 'pos x/y/c'
             l = command[4:].split('/')  # '012345678'
             x, y, c = int(l[0]), int(l[1]), l[-1]
@@ -112,10 +107,10 @@ class GameOfLife:
     def next_command(self, command: str):    
         try: 
             if '+' in command:
-                self.next_command += int(command[6:])   # '01234567'
+                self.next_inp += int(command[6:])   # '01234567'
             self.next_inp = int(command[4:])            # 'nxco +67'
         except Exception:
-            self.next_inp += 10
+            pass
     
     def finish_command(self, command: str):
         try:
@@ -123,10 +118,18 @@ class GameOfLife:
         except Exception: # '0123456'
             pass          # 'fis 500'
 
+    def help_command(self):
+        print("\npos {x/y/c} - place a cell\n"
+            "nxco {number}- next command gen\n"
+            "fis {number}- set finish gen\n"
+            "stop - stop the game\n"
+            "cler - clear the board")
+        sleep(10)
+
     def print_console(self):
         os.system('clear')
         print('PyOfLife'.center(self.width, '|'))
-        print(f'finish={self.finish}')
+        print(f'finish={self.finish} next command - {self.next_inp}')
         population = 0
         for i in self.matrix:
             print(i)
@@ -144,6 +147,8 @@ class GameOfLife:
         self.recounting()
         if self.gen >= self.finish:
             self.running = False
+        if self.next_inp <= self.gen:
+            self.next_inp = self.gen + 10
 
 
 Game=GameOfLife(N=20, finish=50)
