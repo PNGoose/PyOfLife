@@ -89,6 +89,8 @@ class GameOfLife:
                 break
             elif inp[0:4] == 'cler':
                 self.game_control(1)
+            elif inp[0:5] == 'regen':
+                self.game_control(2)
             elif inp[0:4] == 'help':
                self.help_command()
             self.print_console()
