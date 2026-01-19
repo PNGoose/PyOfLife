@@ -1,6 +1,6 @@
-A "Game of Life" made with python.
+A "Game of Life" made with python.<\br>
 Preview:
-[[preview.gif]]
+![[preview.gif]]
 
 Commands:
 - pos **x/y/c** - place '#' or '.' on coordinates \[x y]
